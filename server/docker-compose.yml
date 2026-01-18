@@ -6,6 +6,6 @@ services:
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=upload
+      - POSTGRES_DB=bitly
     volumes:
       - "./docker:/docker-entrypoint-initdb.d"
