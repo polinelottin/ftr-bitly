@@ -1,4 +1,4 @@
-# [ftr-bitly] web
+# Brev.ly web
 
 Aplicação web React para encurtamento de URLs inspirada no Brev.ly.
 

@@ -1,4 +1,4 @@
-# [ftr-bitly] server
+# Brev.ly server
 
 API de encurtamento de URLs inspirada no Bit.ly.
 
