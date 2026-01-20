@@ -16,6 +16,12 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
     schema: {
       body: z.object({
         url: z.url(),
+        shortUrl: z
+          .string()
+          .regex(/^[a-zA-Z0-9_-]+$/, 'Short URL must contain only alphanumeric characters, hyphens, and underscores')
+          .min(1, 'Short URL must be at least 1 character long')
+          .max(255, 'Short URL must be at most 255 characters long')
+          .optional(),
       }),
       response: {
         201: z.object({
@@ -35,9 +41,9 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
     },
   }, async (request, reply) => {
     try {
-      const { url } = request.body
+      const { url, shortUrl } = request.body
 
-      const result = await createLink(url)
+      const result = await createLink(url, shortUrl)
 
       if (isRight(result)) {
         const link = unwrapEither(result)

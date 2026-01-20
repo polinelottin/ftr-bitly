@@ -286,6 +286,168 @@ describe('URL Shortener Routes', () => {
       expect(body).toHaveProperty('issues')
       expect(Array.isArray(body.issues)).toBe(true)
     })
+
+    test('should be able to create a link with custom shortUrl', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://www.google.com',
+          shortUrl: 'my-custom-url',
+        },
+      })
+
+      expect(response.statusCode).toBe(201)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('id')
+      expect(body).toHaveProperty('originalUrl')
+      expect(body).toHaveProperty('shortUrl')
+      expect(body).toHaveProperty('createdAt')
+      expect(body.originalUrl).toBe('https://www.google.com')
+      expect(body.shortUrl).toBe('my-custom-url')
+    })
+
+    test('should be able to create a link with custom shortUrl containing underscore and hyphen', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: 'my_custom-url_123',
+        },
+      })
+
+      expect(response.statusCode).toBe(201)
+      const body = JSON.parse(response.body)
+      expect(body.shortUrl).toBe('my_custom-url_123')
+    })
+
+    test('should not create a link with shortUrl containing invalid characters', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: 'my-url@123',
+        },
+      })
+
+      expect(response.statusCode).toBe(400)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('message')
+      expect(body.message).toBe('Validation error')
+    })
+
+    test('should not create a link with shortUrl containing spaces', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: 'my url',
+        },
+      })
+
+      expect(response.statusCode).toBe(400)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('message')
+      expect(body.message).toBe('Validation error')
+    })
+
+    test('should not create a link with empty shortUrl', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: '',
+        },
+      })
+
+      expect(response.statusCode).toBe(400)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('message')
+      expect(body.message).toBe('Validation error')
+    })
+
+    test('should not create a link with shortUrl exceeding maximum length', async () => {
+      const longShortUrl = 'a'.repeat(256) // 256 characters, exceeds max of 255
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: longShortUrl,
+        },
+      })
+
+      expect(response.statusCode).toBe(400)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('message')
+      expect(body.message).toBe('Validation error')
+    })
+
+    test('should create a link with shortUrl at maximum length', async () => {
+      const maxLengthShortUrl = 'a'.repeat(255) // Exactly 255 characters
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+          shortUrl: maxLengthShortUrl,
+        },
+      })
+
+      expect(response.statusCode).toBe(201)
+      const body = JSON.parse(response.body)
+      expect(body.shortUrl).toBe(maxLengthShortUrl)
+    })
+
+    test('should not create a link with duplicate shortUrl', async () => {
+      // Criar primeiro link com shortUrl customizado
+      const firstResponse = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com/1',
+          shortUrl: 'duplicate-url',
+        },
+      })
+
+      expect(firstResponse.statusCode).toBe(201)
+
+      // Tentar criar segundo link com o mesmo shortUrl
+      const secondResponse = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com/2',
+          shortUrl: 'duplicate-url',
+        },
+      })
+
+      expect(secondResponse.statusCode).toBe(400)
+      const body = JSON.parse(secondResponse.body)
+      expect(body).toHaveProperty('message')
+      expect(body.message).toBe('Duplicate short URL. Please try again.')
+    })
+
+    test('should create link without shortUrl and generate random one', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/url-shortner',
+        payload: {
+          url: 'https://example.com',
+        },
+      })
+
+      expect(response.statusCode).toBe(201)
+      const body = JSON.parse(response.body)
+      expect(body).toHaveProperty('shortUrl')
+      expect(body.shortUrl).toBeTruthy()
+      expect(typeof body.shortUrl).toBe('string')
+      expect(body.shortUrl.length).toBeGreaterThan(0)
+    })
   })
 
   describe('DELETE /url-shortner/:id', () => {

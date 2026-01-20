@@ -27,10 +27,29 @@ async function generateUniqueShortUrl(length = 8): Promise<string> {
 }
 
 export async function createLink(
-  originalUrl: string
+  originalUrl: string,
+  customShortUrl?: string
 ): Promise<Either<DuplicateShortUrlError, { id: string; originalUrl: string; shortUrl: string; createdAt: Date }>> {
   try {
-    const shortUrl = await generateUniqueShortUrl()
+    let shortUrl: string
+
+    if (customShortUrl) {
+      // Verificar se o shortUrl customizado já existe
+      const existingLink = await db
+        .select()
+        .from(links)
+        .where(eq(links.shortUrl, customShortUrl))
+        .limit(1)
+
+      if (existingLink.length > 0) {
+        return makeLeft(new DuplicateShortUrlError())
+      }
+
+      shortUrl = customShortUrl
+    } else {
+      // Gerar shortUrl aleatório se não fornecido
+      shortUrl = await generateUniqueShortUrl()
+    }
 
     const [newLink] = await db
       .insert(links)
@@ -48,6 +67,12 @@ export async function createLink(
     })
   } catch (error: any) {
     if (error.code === '23505' || error.constraint === 'links_short_url_unique') {
+      // Se for um shortUrl customizado e já existe, retornar erro
+      if (customShortUrl) {
+        return makeLeft(new DuplicateShortUrlError())
+      }
+
+      // Caso contrário, tentar gerar um novo shortUrl aleatório
       try {
         const shortUrl = await generateUniqueShortUrl()
         const [newLink] = await db
