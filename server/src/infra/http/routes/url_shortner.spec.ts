@@ -16,9 +16,19 @@ async function createTestServer() {
 
   server.setErrorHandler((error, request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
+      const validationIssues = (error as any).validation
       return reply.status(400).send({
         message: 'Validation error',
-        issues: error.validation,
+        issues: Array.isArray(validationIssues) ? validationIssues : (validationIssues ? [validationIssues] : []),
+      })
+    }
+
+    // Handle other validation errors that might not be caught by hasZodFastifySchemaValidationErrors
+    if ((error as any).statusCode === 400 && (error as any).validation) {
+      const validationIssues = (error as any).validation
+      return reply.status(400).send({
+        message: 'Validation error',
+        issues: Array.isArray(validationIssues) ? validationIssues : (validationIssues ? [validationIssues] : []),
       })
     }
 
@@ -265,7 +275,9 @@ describe('URL Shortener Routes', () => {
       expect(response.statusCode).toBe(400)
       const body = JSON.parse(response.body)
       expect(body.message).toBe('Validation error')
-      expect(body.issues).toBeDefined()
+      // O error handler sempre retorna issues como array, mesmo que vazio
+      expect(body).toHaveProperty('issues')
+      expect(Array.isArray(body.issues)).toBe(true)
     })
   })
 

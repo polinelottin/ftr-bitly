@@ -21,7 +21,7 @@ server.setErrorHandler((error, request, reply) => {
   if (hasZodFastifySchemaValidationErrors(error)) {
     return reply.status(400).send({
       message: 'Validation error',
-      issues: error.validation,
+      issues: error.validation || [],
     })
   }
 
