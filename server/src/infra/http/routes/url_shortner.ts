@@ -62,7 +62,14 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
       }
 
       return reply.status(500).send({ message: 'Internal server error.' })
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating link:', error)
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        constraint: error?.constraint,
+        stack: error?.stack,
+      })
       return reply.status(500).send({ message: 'Internal server error.' })
     }
   })

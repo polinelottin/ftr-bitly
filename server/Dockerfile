@@ -1,8 +1,8 @@
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
-# Instalar pnpm
-RUN npm install -g pnpm
+# Instalar pnpm versão específica
+RUN npm install -g pnpm@8
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
 # Instalar dependências
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copiar código fonte
 COPY . .
@@ -21,8 +21,8 @@ RUN pnpm exec tsc --noEmit
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-# Instalar pnpm
-RUN npm install -g pnpm
+# Instalar pnpm versão específica
+RUN npm install -g pnpm@8
 
 WORKDIR /app
 

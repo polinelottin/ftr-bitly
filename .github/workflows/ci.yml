@@ -56,6 +56,15 @@ jobs:
         run: |
           pnpm install
 
+      - name: Run database migrations
+        id: run-migrations
+        working-directory: ./server
+        env:
+          DATABASE_URL: postgresql://docker:docker@localhost:5432/bitly_test
+          NODE_ENV: test
+        run: |
+          pnpm db:migrate
+
       - name: Run tests
         id: run-tests
         working-directory: ./server
