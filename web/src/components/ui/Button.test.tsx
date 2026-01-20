@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Button } from './Button';
 
-const TestIcon = () => <span data-testid="icon">🔥</span>;
-
 describe('Button', () => {
   it('should render button with children', () => {
     render(<Button>Click me</Button>);
@@ -139,11 +137,10 @@ describe('Button', () => {
   });
 
   // Icon-only button tests (formerly IconButton tests)
-  it('should render icon button with ariaLabel when iconOnly is true', () => {
+  // IconOnly é inferido automaticamente quando há icon mas não há children
+  it('should render icon button with ariaLabel when icon is provided without children', () => {
     render(
-      <Button iconOnly ariaLabel="Delete">
-        <TestIcon />
-      </Button>
+      <Button icon="trash" ariaLabel="Delete" />
     );
     const button = screen.getByRole('button', { name: /delete/i });
     expect(button).toBeInTheDocument();
@@ -151,9 +148,7 @@ describe('Button', () => {
 
   it('should render primary variant by default for icon-only button', () => {
     render(
-      <Button iconOnly ariaLabel="Action">
-        <TestIcon />
-      </Button>
+      <Button icon="copy" ariaLabel="Action" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('bg-blue-base');
@@ -161,78 +156,75 @@ describe('Button', () => {
 
   it('should render secondary variant for icon-only button', () => {
     render(
-      <Button variant="secondary" iconOnly ariaLabel="Action">
-        <TestIcon />
-      </Button>
+      <Button variant="secondary" icon="link" ariaLabel="Action" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('bg-white', 'border-2', 'border-blue-base');
   });
 
-  it('should apply icon-only padding (p-2) when iconOnly is true', () => {
+  it('should apply icon-only padding (p-2) when icon is provided without children', () => {
     render(
-      <Button iconOnly ariaLabel="Icon">
-        <TestIcon />
-      </Button>
+      <Button icon="warning" ariaLabel="Icon" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('p-2');
     expect(button).not.toHaveClass('px-6', 'py-2');
   });
 
-  it('should apply regular padding when iconOnly is false', () => {
+  it('should apply regular padding when button has text', () => {
     render(<Button>Text</Button>);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('px-6', 'py-2');
     expect(button).not.toHaveClass('p-2');
   });
 
-  it('should have proper flex classes for centering icon when iconOnly is true', () => {
+  it('should have proper flex classes for centering icon when icon-only', () => {
     render(
-      <Button iconOnly ariaLabel="Centered">
-        <TestIcon />
-      </Button>
+      <Button icon="copy" ariaLabel="Centered" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('flex', 'items-center', 'justify-center');
   });
 
-  it('should not have flex classes when iconOnly is false', () => {
+  it('should not have flex classes when button has only text', () => {
     render(<Button>Text</Button>);
     const button = screen.getByRole('button');
     expect(button).not.toHaveClass('flex', 'items-center', 'justify-center');
   });
 
-  it('should not have font classes when iconOnly is true', () => {
+  it('should have flex classes when button has icon with text', () => {
     render(
-      <Button iconOnly ariaLabel="Icon">
-        <TestIcon />
-      </Button>
+      <Button icon="copy">Copy</Button>
+    );
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('flex', 'items-center', 'justify-center');
+  });
+
+  it('should not have font classes when icon-only', () => {
+    render(
+      <Button icon="trash" ariaLabel="Icon" />
     );
     const button = screen.getByRole('button');
     expect(button).not.toHaveClass('font-semibold', 'text-md');
   });
 
-  it('should have font classes when iconOnly is false', () => {
+  it('should have font classes when button has text', () => {
     render(<Button>Text</Button>);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('font-semibold', 'text-md');
   });
 
-  it('should render icon children when iconOnly is true', () => {
+  it('should render icon when icon-only', () => {
     render(
-      <Button iconOnly ariaLabel="Icon">
-        <TestIcon />
-      </Button>
+      <Button icon="copy" ariaLabel="Icon" />
     );
-    expect(screen.getByTestId('icon')).toBeInTheDocument();
+    const button = screen.getByRole('button');
+    expect(button.querySelector('svg')).toBeInTheDocument();
   });
 
   it('should apply disabled styles for primary variant icon-only button', () => {
     render(
-      <Button variant="primary" disabled iconOnly ariaLabel="Disabled">
-        <TestIcon />
-      </Button>
+      <Button variant="primary" disabled icon="trash" ariaLabel="Disabled" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('bg-gray-300', 'text-gray-500');
@@ -240,9 +232,7 @@ describe('Button', () => {
 
   it('should apply disabled styles for secondary variant icon-only button', () => {
     render(
-      <Button variant="secondary" disabled iconOnly ariaLabel="Disabled">
-        <TestIcon />
-      </Button>
+      <Button variant="secondary" disabled icon="trash" ariaLabel="Disabled" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveClass('bg-gray-200', 'text-gray-400');
@@ -250,9 +240,7 @@ describe('Button', () => {
 
   it('should use ariaLabel prop for accessibility', () => {
     render(
-      <Button iconOnly ariaLabel="Accessible">
-        <TestIcon />
-      </Button>
+      <Button icon="copy" ariaLabel="Accessible" />
     );
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-label', 'Accessible');
@@ -263,9 +251,7 @@ describe('Button', () => {
     const user = userEvent.setup();
     
     render(
-      <Button onClick={handleClick} iconOnly ariaLabel="Keyboard">
-        <TestIcon />
-      </Button>
+      <Button onClick={handleClick} icon="copy" ariaLabel="Keyboard" />
     );
     const button = screen.getByRole('button');
     
