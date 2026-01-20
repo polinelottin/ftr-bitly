@@ -78,17 +78,17 @@ export function Button({
   
   const variantClasses = {
     primary: disabled
-      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+      ? 'bg-blue-base text-white opacity-50 cursor-not-allowed'
       : 'bg-blue-base hover:bg-blue-dark text-white focus:ring-blue-base',
     secondary: disabled
-      ? 'bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed'
-      : 'bg-white border-2 border-blue-base text-blue-base hover:bg-gray-100 focus:ring-blue-base',
+      ? 'bg-gray-200 text-gray-400 border border-gray-300 opacity-50 cursor-not-allowed'
+      : 'bg-gray-200 border border-gray-300 text-gray-400 hover:border-blue-base focus:ring-blue-base',
   };
 
   // Determina a cor do ícone baseado na variant e estado disabled
   const iconColorClass = disabled
-    ? variant === 'primary' ? 'text-gray-500' : 'text-gray-400'
-    : variant === 'primary' ? 'text-white' : 'text-blue-base';
+    ? variant === 'primary' ? 'text-white' : 'text-gray-400'
+    : variant === 'primary' ? 'text-white' : 'text-gray-400';
 
   return (
     <button
