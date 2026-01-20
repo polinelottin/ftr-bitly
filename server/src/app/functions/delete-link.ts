@@ -5,12 +5,14 @@ import { type Either, makeLeft, makeRight } from '@/infra/shared/either'
 import { LinkNotFound } from './errors/link-not-found'
 
 export async function deleteLink(
-  id: string
+  shortUrl: string
 ): Promise<Either<LinkNotFound, { success: true }>> {
+  const decodedShortUrl = decodeURIComponent(shortUrl)
+
   const [link] = await db
     .select()
     .from(links)
-    .where(eq(links.id, id))
+    .where(eq(links.shortUrl, decodedShortUrl))
     .limit(1)
 
   if (!link) {
@@ -19,7 +21,7 @@ export async function deleteLink(
 
   await db
     .delete(links)
-    .where(eq(links.id, id))
+    .where(eq(links.shortUrl, decodedShortUrl))
 
   return makeRight({ success: true })
 }

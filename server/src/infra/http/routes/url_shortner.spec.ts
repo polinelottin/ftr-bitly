@@ -450,7 +450,7 @@ describe('URL Shortener Routes', () => {
     })
   })
 
-  describe('DELETE /url-shortner/:id', () => {
+  describe('DELETE /url-shortner/:shortUrl', () => {
     test('should be able to delete a link', async () => {
       // Criar link primeiro
       const createResponse = await server.inject({
@@ -463,28 +463,28 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'DELETE',
-        url: `/url-shortner/${validUuid}`,
+        url: `/url-shortner/${shortUrl}`,
       })
 
       expect(response.statusCode).toBe(204)
     })
 
-    test('should not delete a link with invalid UUID format', async () => {
+    test('should not delete a link with invalid shortUrl format', async () => {
       const response = await server.inject({
         method: 'DELETE',
-        url: '/url-shortner/invalid-id',
+        url: '/url-shortner/non-existent-short-url',
       })
 
-      expect(response.statusCode).toBe(400)
+      expect(response.statusCode).toBe(404)
       const body = JSON.parse(response.body)
       expect(body).toHaveProperty('message')
     })
 
-    test('should handle different UUID formats', async () => {
+    test('should handle different shortUrls', async () => {
       // Criar links primeiro
       const createResponse1 = await server.inject({
         method: 'POST',
@@ -506,16 +506,16 @@ describe('URL Shortener Routes', () => {
       expect(createResponse2.statusCode).toBe(201)
       expect(createResponse3.statusCode).toBe(201)
 
-      const validUuids = [
-        JSON.parse(createResponse1.body).id,
-        JSON.parse(createResponse2.body).id,
-        JSON.parse(createResponse3.body).id,
+      const shortUrls = [
+        JSON.parse(createResponse1.body).shortUrl,
+        JSON.parse(createResponse2.body).shortUrl,
+        JSON.parse(createResponse3.body).shortUrl,
       ]
 
-      for (const uuid of validUuids) {
+      for (const shortUrl of shortUrls) {
         const response = await server.inject({
           method: 'DELETE',
-          url: `/url-shortner/${uuid}`,
+          url: `/url-shortner/${shortUrl}`,
         })
 
         expect(response.statusCode).toBe(204)
@@ -534,11 +534,11 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'DELETE',
-        url: `/url-shortner/${validUuid}`,
+        url: `/url-shortner/${shortUrl}`,
       })
 
       expect(response.statusCode).toBe(204)
@@ -546,22 +546,22 @@ describe('URL Shortener Routes', () => {
     })
 
     test('should return 404 when link does not exist', async () => {
-      const nonExistentUuid = '00000000-0000-0000-0000-000000000000'
+      const nonExistentShortUrl = 'non-existent-short-url'
 
       const response = await server.inject({
         method: 'DELETE',
-        url: `/url-shortner/${nonExistentUuid}`,
+        url: `/url-shortner/${nonExistentShortUrl}`,
       })
 
       expect(response.statusCode).toBe(404)
     })
 
     test('should return appropriate error message when link not found', async () => {
-      const nonExistentUuid = '00000000-0000-0000-0000-000000000000'
+      const nonExistentShortUrl = 'non-existent-short-url'
 
       const response = await server.inject({
         method: 'DELETE',
-        url: `/url-shortner/${nonExistentUuid}`,
+        url: `/url-shortner/${nonExistentShortUrl}`,
       })
 
       if (response.statusCode === 404) {
@@ -945,7 +945,7 @@ describe('URL Shortener Routes', () => {
     })
   })
 
-  describe('PATCH /url-shortner/:id/access', () => {
+  describe('PATCH /url-shortner/:shortUrl/access', () => {
     test('should be able to increment access count', async () => {
       // Criar link primeiro
       const createResponse = await server.inject({
@@ -958,11 +958,11 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(200)
@@ -972,22 +972,22 @@ describe('URL Shortener Routes', () => {
       expect(body).toHaveProperty('shortUrl')
       expect(body).toHaveProperty('accessCount')
       expect(body).toHaveProperty('updatedAt')
-      expect(body.id).toBe(validUuid)
+      expect(body.shortUrl).toBe(shortUrl)
       expect(typeof body.accessCount).toBe('number')
     })
 
-    test('should not increment access with invalid UUID format', async () => {
+    test('should not increment access with invalid shortUrl format', async () => {
       const response = await server.inject({
         method: 'PATCH',
-        url: '/url-shortner/invalid-id/access',
+        url: '/url-shortner/non-existent-short-url/access',
       })
 
-      expect(response.statusCode).toBe(400)
+      expect(response.statusCode).toBe(404)
       const body = JSON.parse(response.body)
       expect(body).toHaveProperty('message')
     })
 
-    test('should handle different UUID formats', async () => {
+    test('should handle different shortUrls', async () => {
       // Criar links primeiro
       const createResponse1 = await server.inject({
         method: 'POST',
@@ -1003,20 +1003,20 @@ describe('URL Shortener Routes', () => {
       expect(createResponse1.statusCode).toBe(201)
       expect(createResponse2.statusCode).toBe(201)
 
-      const validUuids = [
-        JSON.parse(createResponse1.body).id,
-        JSON.parse(createResponse2.body).id,
+      const shortUrls = [
+        JSON.parse(createResponse1.body).shortUrl,
+        JSON.parse(createResponse2.body).shortUrl,
       ]
 
-      for (const uuid of validUuids) {
+      for (const shortUrl of shortUrls) {
         const response = await server.inject({
           method: 'PATCH',
-          url: `/url-shortner/${uuid}/access`,
+          url: `/url-shortner/${shortUrl}/access`,
         })
 
         expect(response.statusCode).toBe(200)
         const body = JSON.parse(response.body)
-        expect(body.id).toBe(uuid)
+        expect(body.shortUrl).toBe(shortUrl)
       }
     })
 
@@ -1032,11 +1032,11 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(200)
@@ -1050,22 +1050,22 @@ describe('URL Shortener Routes', () => {
     })
 
     test('should return 404 when link does not exist', async () => {
-      const nonExistentUuid = '00000000-0000-0000-0000-000000000000'
+      const nonExistentShortUrl = 'non-existent-short-url'
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${nonExistentUuid}/access`,
+        url: `/url-shortner/${nonExistentShortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(404)
     })
 
     test('should return appropriate error message when link not found', async () => {
-      const nonExistentUuid = '00000000-0000-0000-0000-000000000000'
+      const nonExistentShortUrl = 'non-existent-short-url'
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${nonExistentUuid}/access`,
+        url: `/url-shortner/${nonExistentShortUrl}/access`,
       })
 
       if (response.statusCode === 404) {
@@ -1086,12 +1086,12 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
       const initialAccessCount = createdBody.accessCount || 0
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(200)
@@ -1112,11 +1112,11 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(200)
@@ -1137,16 +1137,16 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response1 = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       const response2 = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response1.statusCode).toBe(200)
@@ -1172,11 +1172,11 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const validUuid = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const response = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${validUuid}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(response.statusCode).toBe(200)
@@ -1311,17 +1311,17 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const linkId = createdBody.id
+      const shortUrl = createdBody.shortUrl
 
       const incrementResponse = await server.inject({
         method: 'PATCH',
-        url: `/url-shortner/${linkId}/access`,
+        url: `/url-shortner/${shortUrl}/access`,
       })
 
       expect(incrementResponse.statusCode).toBe(200)
       const incrementBody = JSON.parse(incrementResponse.body)
       expect(incrementBody.accessCount).toBeGreaterThanOrEqual(0)
-      expect(incrementBody.id).toBe(linkId)
+      expect(incrementBody.shortUrl).toBe(shortUrl)
     })
 
     test('should create multiple links and list with pagination', async () => {
@@ -1360,7 +1360,6 @@ describe('URL Shortener Routes', () => {
 
       expect(createResponse.statusCode).toBe(201)
       const createdBody = JSON.parse(createResponse.body)
-      const linkId = createdBody.id
       const shortUrl = createdBody.shortUrl
 
       const getResponse = await server.inject({
@@ -1372,7 +1371,7 @@ describe('URL Shortener Routes', () => {
 
       const deleteResponse = await server.inject({
         method: 'DELETE',
-        url: `/url-shortner/${linkId}`,
+        url: `/url-shortner/${shortUrl}`,
       })
 
       expect(deleteResponse.statusCode).toBe(204)
@@ -1425,11 +1424,11 @@ describe('URL Shortener Routes', () => {
       const listBody1 = JSON.parse(listResponse1.body)
 
       if (listBody1.links.length > 0) {
-        const firstLinkId = listBody1.links[0].id
+        const firstShortUrl = listBody1.links[0].shortUrl
 
         const incrementResponse = await server.inject({
           method: 'PATCH',
-          url: `/url-shortner/${firstLinkId}/access`,
+          url: `/url-shortner/${firstShortUrl}/access`,
         })
 
         expect(incrementResponse.statusCode).toBe(200)

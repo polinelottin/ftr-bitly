@@ -68,10 +68,10 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
   })
 
   // Deletar um link
-  server.delete('/url-shortner/:id', {
+  server.delete('/url-shortner/:shortUrl', {
     schema: {
       params: z.object({
-        id: z.string().uuid(),
+        shortUrl: z.string(),
       }),
       response: {
         204: z.void(),
@@ -85,9 +85,9 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
     },
   }, async (request, reply) => {
     try {
-      const { id } = request.params
+      const { shortUrl } = request.params
 
-      const result = await deleteLink(id)
+      const result = await deleteLink(shortUrl)
 
       if (isRight(result)) {
         unwrapEither(result) // Consumir o resultado mas não usar
@@ -200,10 +200,10 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
   })
 
   // Incrementar a quantidade de acessos de um link
-  server.patch('/url-shortner/:id/access', {
+  server.patch('/url-shortner/:shortUrl/access', {
     schema: {
       params: z.object({
-        id: z.string().uuid(),
+        shortUrl: z.string(),
       }),
       response: {
         200: z.object({
@@ -223,9 +223,9 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
     },
   }, async (request, reply) => {
     try {
-      const { id } = request.params
+      const { shortUrl } = request.params
 
-      const result = await incrementAccessCount(id)
+      const result = await incrementAccessCount(shortUrl)
 
       if (isRight(result)) {
         const link = unwrapEither(result)

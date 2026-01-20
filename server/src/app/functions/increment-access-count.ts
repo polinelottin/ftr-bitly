@@ -5,12 +5,14 @@ import { type Either, makeLeft, makeRight } from '@/infra/shared/either'
 import { LinkNotFound } from './errors/link-not-found'
 
 export async function incrementAccessCount(
-  id: string
+  shortUrl: string
 ): Promise<Either<LinkNotFound, { id: string; originalUrl: string; shortUrl: string; accessCount: number; updatedAt: Date }>> {
+  const decodedShortUrl = decodeURIComponent(shortUrl)
+
   const [link] = await db
     .select()
     .from(links)
-    .where(eq(links.id, id))
+    .where(eq(links.shortUrl, decodedShortUrl))
     .limit(1)
 
   if (!link) {
@@ -23,7 +25,7 @@ export async function incrementAccessCount(
       accessCount: sql`${links.accessCount} + 1`,
       updatedAt: sql`now()`,
     })
-    .where(eq(links.id, id))
+    .where(eq(links.shortUrl, decodedShortUrl))
     .returning()
 
   return makeRight({
