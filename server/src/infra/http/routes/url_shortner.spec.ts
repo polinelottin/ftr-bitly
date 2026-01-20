@@ -6,7 +6,8 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
+import { cleanDatabase } from '@/test/utils/transaction'
 
 async function createTestServer() {
   const server = fastify()
@@ -51,6 +52,12 @@ describe('URL Shortener Routes', () => {
 
   afterAll(async () => {
     await server.close()
+  })
+
+  // Limpa o banco de dados após cada teste para garantir isolamento
+  // Isso evita que dados de um teste afetem outros testes
+  afterEach(async () => {
+    await cleanDatabase()
   })
 
   describe('POST /url-shortner', () => {
