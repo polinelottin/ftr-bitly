@@ -1,4 +1,5 @@
 import { colors } from './src/design-system/colors.js';
+import { typography } from './src/design-system/typography.js';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -9,6 +10,9 @@ export default {
   theme: {
     extend: {
       colors,
+      fontFamily: typography.fontFamily,
+      fontSize: typography.fontSize,
+      fontWeight: typography.fontWeight,
     },
   },
   plugins: [],
