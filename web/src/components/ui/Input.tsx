@@ -10,19 +10,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', required, ...props }, ref) => {
     const hasError = !!error;
     
-    const inputBaseClasses = 'w-full px-4 py-2 rounded-lg border-2 transition-colors text-md focus:outline-none focus:ring-2 focus:ring-offset-1';
+    const inputBaseClasses = 'w-full px-4 py-2 rounded-lg border-2 text-gray-600 transition-colors text-md focus:outline-none';
     
     const inputStateClasses = hasError
-      ? 'border-danger focus:border-danger focus:ring-danger'
+      ? 'border-danger focus:border-danger focus:ring-danger focus:ring-2 focus:ring-offset-1'
       : 'border-gray-200 focus:border-blue-base focus:ring-blue-base';
     
     const inputClasses = `${inputBaseClasses} ${inputStateClasses} ${className}`;
+
+    const labelClasses = error ? 'text-xs uppercase text-danger font-semibold' : 'text-xs uppercase text-gray-400 focus:text-blue-600';
 
     return (
       <div className="flex flex-col gap-1">
         <label
           htmlFor={props.id}
-          className="text-xs uppercase font-semibold text-gray-600"
+          className={labelClasses}
         >
           {label}
           {required && <span className="text-danger ml-1">*</span>}
