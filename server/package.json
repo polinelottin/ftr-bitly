@@ -1,8 +1,8 @@
 {
-  "name": "bitly-server",
+  "name": "brevly-server",
   "version": "1.0.0",
   "type": "module",
-  "description": "Bitly clone API",
+  "description": "Brev.ly API",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch --env-file .env src/infra/http/server.ts",

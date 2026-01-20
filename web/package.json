@@ -1,8 +1,8 @@
 {
-  "name": "ftr-bitly-web",
+  "name": "ftr-brevly-web",
   "version": "1.0.0",
   "type": "module",
-  "description": "Bitly clone web application",
+  "description": "Brev.ly web application",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

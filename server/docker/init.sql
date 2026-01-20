@@ -1,1 +1,1 @@
-CREATE DATABASE bitly;
+CREATE DATABASE brevly;

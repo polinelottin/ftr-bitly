@@ -1,6 +1,6 @@
 # [ftr-bitly] web
 
-Aplicação web React para encurtamento de URLs inspirada no Bitly.
+Aplicação web React para encurtamento de URLs inspirada no Brev.ly.
 
 ## Requisitos
 

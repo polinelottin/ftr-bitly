@@ -1,6 +1,6 @@
 # [ftr-bitly] server
 
-API de encurtamento de URLs inspirada no Bitly.
+API de encurtamento de URLs inspirada no Bit.ly.
 
 ## Requisitos Implementados
 
@@ -45,7 +45,7 @@ O projeto inclui um `Dockerfile` seguindo as boas práticas:
 Para construir a imagem:
 
 ```bash
-docker build -t ftr-bitly-server .
+docker build -t ftr-brevly-server .
 ```
 
 Para executar com Docker Compose:
