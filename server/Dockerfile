@@ -1,8 +1,8 @@
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
-# Instalar pnpm versão específica
-RUN npm install -g pnpm@8
+# Instalar pnpm versão específica (compatível com lockfile v9)
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 
@@ -21,8 +21,8 @@ RUN pnpm exec tsc --noEmit
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-# Instalar pnpm versão específica
-RUN npm install -g pnpm@8
+# Instalar pnpm versão específica (compatível com lockfile v9)
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 
