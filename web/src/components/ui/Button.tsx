@@ -3,6 +3,11 @@ import { ButtonHTMLAttributes, ReactNode } from 'react';
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
   children: ReactNode;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  iconOnly?: boolean;
+  ariaLabel?: string;
 }
 
 export function Button({
@@ -11,9 +16,15 @@ export function Button({
   type = 'button',
   children,
   className = '',
+  iconOnly = false,
+  ariaLabel,
   ...props
 }: ButtonProps) {
-  const baseClasses = 'px-6 py-2 rounded-lg transition-colors font-semibold text-md focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const paddingClasses = iconOnly ? 'p-2' : 'px-6 py-2';
+  const textClasses = iconOnly ? '' : 'font-semibold text-md';
+  const flexClasses = iconOnly ? 'flex items-center justify-center' : '';
+  
+  const baseClasses = `${paddingClasses} rounded-lg transition-colors ${textClasses} ${flexClasses} focus:outline-none focus:ring-2 focus:ring-offset-2`.trim();
   
   const variantClasses = {
     primary: disabled
@@ -28,6 +39,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
+      aria-label={ariaLabel}
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       {...props}
     >
