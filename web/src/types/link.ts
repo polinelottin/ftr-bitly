@@ -7,7 +7,7 @@ export interface Link {
 }
 
 export interface CreateLinkRequest {
-  originalUrl: string
+  url: string
   shortUrl?: string
 }
 
