@@ -1,5 +1,9 @@
 import { env } from '@/env'
 import { urlShortnerRoute } from '@/infra/http/routes/url_shortner'
+import { getLinkByShortUrl } from '@/app/functions/get-link-by-short-url'
+import { incrementAccessCount } from '@/app/functions/increment-access-count'
+import { isRight, unwrapEither } from '@/infra/shared/either'
+import { LinkNotFound } from '@/app/functions/errors/link-not-found'
 import { fastifyCors } from '@fastify/cors'
 import { fastifyMultipart } from '@fastify/multipart'
 import { fastifySwagger } from '@fastify/swagger'
@@ -53,6 +57,55 @@ server.register(fastifySwaggerUi, {
 })
 
 server.register(urlShortnerRoute)
+
+// Rota de redirecionamento - deve ser registrada por último para não conflitar com outras rotas
+server.get('/*', async (request, reply) => {
+  const path = request.url.split('?')[0] // Remove query params
+  
+  // Ignorar rotas conhecidas da API
+  if (
+    path.startsWith('/docs') ||
+    path.startsWith('/url-shortner') ||
+    path.startsWith('/favicon.ico') ||
+    path === '/'
+  ) {
+    return reply.status(404).send({
+      message: `Route ${request.method}:${path} not found`,
+      error: 'Not Found',
+      statusCode: 404,
+    })
+  }
+
+  // Extrair o shortUrl da URL (remove a barra inicial)
+  const shortUrl = path.slice(1)
+
+  try {
+    // Buscar o link
+    const linkResult = await getLinkByShortUrl(shortUrl)
+
+    if (isRight(linkResult)) {
+      const link = unwrapEither(linkResult)
+      
+      // Incrementar contador de acessos (não aguardar para não atrasar o redirecionamento)
+      incrementAccessCount(shortUrl).catch((error) => {
+        console.error('Erro ao incrementar contador de acessos:', error)
+      })
+
+      // Redirecionar para a URL original
+      return reply.redirect(link.originalUrl)
+    }
+
+    // Link não encontrado
+    return reply.status(404).send({
+      message: `Route ${request.method}:${path} not found`,
+      error: 'Not Found',
+      statusCode: 404,
+    })
+  } catch (error) {
+    console.error('Erro ao redirecionar:', error)
+    return reply.status(500).send({ message: 'Internal server error.' })
+  }
+})
 
 console.log(env.DATABASE_URL)
 

@@ -74,7 +74,7 @@ function Home() {
   }
 
   const handleCopy = async (shortUrl: string) => {
-    const fullUrl = `${api.baseURL}/${shortUrl}`
+    const fullUrl = `brev.ly/${shortUrl}`
     try {
       await navigator.clipboard.writeText(fullUrl)
       // Você pode adicionar um toast aqui se quiser
@@ -192,12 +192,22 @@ function Home() {
                   >
                     {/* Links - Esquerda */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-blue-base truncate">
-                        {api.baseURL.replace(/^https?:\/\//, '')}/{link.shortUrl}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1 truncate">
+                      <a
+                        href={`${api.baseURL}/${link.shortUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-blue-base truncate hover:underline block"
+                      >
+                        brev.ly/{link.shortUrl}
+                      </a>
+                      <a
+                        href={link.originalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-gray-400 mt-1 truncate hover:underline block"
+                      >
                         {link.originalUrl}
-                      </p>
+                      </a>
                     </div>
                     
                     {/* Acessos - Meio */}
