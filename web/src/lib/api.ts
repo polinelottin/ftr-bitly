@@ -24,9 +24,22 @@ export async function deleteLink(shortUrl: string): Promise<void> {
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Erro ao deletar link' }))
-    throw new Error(error.message || 'Erro ao deletar link')
+    let errorMessage = 'Erro ao deletar link'
+    try {
+      const error = await response.json()
+      errorMessage = error.message || errorMessage
+    } catch {
+      // Se não conseguir fazer parse do JSON, usar a mensagem padrão
+      if (response.status === 404) {
+        errorMessage = 'Link não encontrado'
+      } else if (response.status === 500) {
+        errorMessage = 'Erro interno do servidor'
+      }
+    }
+    throw new Error(errorMessage)
   }
+  
+  // Status 204 (No Content) - sucesso, não há body para processar
 }
 
 export async function getLinkByShortUrl(shortUrl: string): Promise<Link> {

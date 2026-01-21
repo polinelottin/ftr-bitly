@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
-import { createLink, listLinks, exportLinks } from '../lib/api'
+import { createLink, listLinks, exportLinks, deleteLink } from '../lib/api'
 import Logo from '../assets/vectors/Logo.svg'
 import { api } from '../config/api'
 
@@ -54,6 +54,32 @@ function Home() {
       document.body.removeChild(a)
     } catch (error) {
       console.error('Erro ao exportar links:', error)
+    }
+  }
+
+  const deleteLinkMutation = useMutation({
+    mutationFn: deleteLink,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['links'] })
+    },
+    onError: (error: Error) => {
+      alert(error.message || 'Erro ao deletar link')
+    },
+  })
+
+  const handleDelete = async (shortUrl: string) => {
+    if (confirm('Tem certeza que deseja deletar este link?')) {
+      deleteLinkMutation.mutate(shortUrl)
+    }
+  }
+
+  const handleCopy = async (shortUrl: string) => {
+    const fullUrl = `${api.baseURL}/${shortUrl}`
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+      // Você pode adicionar um toast aqui se quiser
+    } catch (error) {
+      console.error('Erro ao copiar link:', error)
     }
   }
 
@@ -156,20 +182,46 @@ function Home() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {links.map((link) => (
+              <div className="space-y-0">
+                {links.map((link, index) => (
                   <div
                     key={link.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-base transition-colors"
+                    className={`flex items-center gap-4 p-4 ${
+                      index !== links.length - 1 ? 'border-b border-gray-200' : ''
+                    }`}
                   >
+                    {/* Links - Esquerda */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-600 truncate">{link.originalUrl}</p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-sm font-semibold text-blue-base truncate">
                         {api.baseURL.replace(/^https?:\/\//, '')}/{link.shortUrl}
                       </p>
+                      <p className="text-xs text-gray-400 mt-1 truncate">
+                        {link.originalUrl}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className="text-xs text-gray-400">{link.accessCount} acessos</span>
+                    
+                    {/* Acessos - Meio */}
+                    <div className="flex-shrink-0">
+                      <span className="text-sm text-gray-600 whitespace-nowrap">
+                        {link.accessCount} acessos
+                      </span>
+                    </div>
+                    
+                    {/* Ações - Direita */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Button
+                        variant="secondary"
+                        icon="copy"
+                        ariaLabel="Copiar link"
+                        onClick={() => handleCopy(link.shortUrl)}
+                      />
+                      <Button
+                        variant="secondary"
+                        icon="trash"
+                        ariaLabel="Deletar link"
+                        onClick={() => handleDelete(link.shortUrl)}
+                        disabled={deleteLinkMutation.isPending}
+                      />
                     </div>
                   </div>
                 ))}
