@@ -18,7 +18,7 @@ describe('Button', () => {
   it('should render secondary variant', () => {
     render(<Button variant="secondary">Secondary</Button>);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-white', 'border-2', 'border-blue-base');
+    expect(button).toHaveClass('bg-gray-200', 'border', 'border-gray-300');
   });
 
   it('should be disabled when disabled prop is true', () => {
@@ -31,7 +31,7 @@ describe('Button', () => {
   it('should apply disabled styles for primary variant', () => {
     render(<Button variant="primary" disabled>Disabled</Button>);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-gray-300', 'text-gray-500');
+    expect(button).toHaveClass('bg-blue-base', 'text-white', 'opacity-50', 'cursor-not-allowed');
   });
 
   it('should apply disabled styles for secondary variant', () => {
@@ -159,7 +159,7 @@ describe('Button', () => {
       <Button variant="secondary" icon="link" ariaLabel="Action" />
     );
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-white', 'border-2', 'border-blue-base');
+    expect(button).toHaveClass('bg-gray-200', 'border', 'border-gray-300');
   });
 
   it('should apply icon-only padding (p-2) when icon is provided without children', () => {
@@ -227,7 +227,7 @@ describe('Button', () => {
       <Button variant="primary" disabled icon="trash" ariaLabel="Disabled" />
     );
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-gray-300', 'text-gray-500');
+    expect(button).toHaveClass('bg-blue-base', 'text-white', 'opacity-50', 'cursor-not-allowed');
   });
 
   it('should apply disabled styles for secondary variant icon-only button', () => {

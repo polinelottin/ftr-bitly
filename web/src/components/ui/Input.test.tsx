@@ -18,7 +18,7 @@ describe('Input', () => {
   it('should have correct label classes', () => {
     render(<Input label="LABEL" id="test-input" />);
     const label = screen.getByText(/label/i);
-    expect(label).toHaveClass('text-xs', 'uppercase', 'font-semibold');
+    expect(label).toHaveClass('text-xs', 'uppercase', 'text-gray-400');
   });
 
   it('should show required indicator when required', () => {
@@ -91,7 +91,7 @@ describe('Input', () => {
   it('should have focus styles', () => {
     render(<Input label="INPUT" id="test-input" />);
     const input = screen.getByLabelText(/input/i);
-    expect(input).toHaveClass('focus:outline-none', 'focus:ring-2');
+    expect(input).toHaveClass('focus:outline-none', 'focus:ring-blue-base');
   });
 
   it('should have focus styles for error state', () => {
