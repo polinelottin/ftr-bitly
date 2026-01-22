@@ -18,6 +18,7 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  // @ts-expect-error - Vitest config is not part of Vite types but is supported
   test: {
     globals: true,
     environment: 'jsdom',

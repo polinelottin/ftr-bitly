@@ -1,5 +1,6 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { createLink, listLinks, exportLinks, deleteLink } from '../lib/api'
@@ -11,10 +12,16 @@ function Home() {
   const [shortUrl, setShortUrl] = useState('')
   const queryClient = useQueryClient()
 
-  const { data: linksData, isLoading } = useQuery({
+  const { data: linksData, isLoading, isError, error } = useQuery({
     queryKey: ['links'],
     queryFn: () => listLinks(1, 100),
   })
+
+  useEffect(() => {
+    if (isError) {
+      toast.error('Erro ao carregar links. Tente recarregar a página.')
+    }
+  }, [isError, error])
 
   const createLinkMutation = useMutation({
     mutationFn: createLink,
@@ -22,6 +29,23 @@ function Home() {
       queryClient.invalidateQueries({ queryKey: ['links'] })
       setOriginalUrl('')
       setShortUrl('')
+      toast.success('Link criado com sucesso!')
+    },
+    onError: (error: Error) => {
+      const errorMessage = error.message || 'Erro ao criar link'
+      
+      // Tratar diferentes tipos de erro
+      if (errorMessage.includes('Duplicate short URL') || errorMessage.includes('duplicada')) {
+        toast.error('Este link encurtado já está em uso. Tente outro.')
+      } else if (errorMessage.includes('Validation error') || errorMessage.includes('inválida')) {
+        toast.error('URL inválida. Verifique e tente novamente.')
+      } else if (errorMessage.includes('Internal server error') || errorMessage.includes('Erro interno')) {
+        toast.error('Erro interno do servidor. Tente novamente mais tarde.')
+      } else if (error.name === 'TypeError' || errorMessage.includes('Failed to fetch')) {
+        toast.error('Erro de conexão. Verifique sua internet e tente novamente.')
+      } else {
+        toast.error(errorMessage)
+      }
     },
   })
 
@@ -52,8 +76,9 @@ function Home() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (error) {
-      console.error('Erro ao exportar links:', error)
+      toast.success('Links exportados com sucesso')
+    } catch {
+      toast.error('Erro ao exportar links. Tente novamente.')
     }
   }
 
@@ -61,9 +86,20 @@ function Home() {
     mutationFn: deleteLink,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] })
+      toast.success('Link deletado com sucesso')
     },
     onError: (error: Error) => {
-      alert(error.message || 'Erro ao deletar link')
+      const errorMessage = error.message || 'Erro ao deletar link'
+      
+      if (errorMessage.includes('não encontrado') || errorMessage.includes('not found') || errorMessage.includes('Link not found')) {
+        toast.error('Link não encontrado')
+      } else if (errorMessage.includes('Internal server error') || errorMessage.includes('Erro interno')) {
+        toast.error('Erro interno do servidor. Tente novamente mais tarde.')
+      } else if (error.name === 'TypeError' || errorMessage.includes('Failed to fetch')) {
+        toast.error('Erro de conexão. Verifique sua internet e tente novamente.')
+      } else {
+        toast.error(errorMessage)
+      }
     },
   })
 
@@ -77,9 +113,9 @@ function Home() {
     const fullUrl = `${api.baseURL}/${shortUrl}`
     try {
       await navigator.clipboard.writeText(fullUrl)
-      // Você pode adicionar um toast aqui se quiser
-    } catch (error) {
-      console.error('Erro ao copiar link:', error)
+      toast.success('Link copiado para a área de transferência')
+    } catch {
+      toast.error('Erro ao copiar link. Tente novamente.')
     }
   }
 

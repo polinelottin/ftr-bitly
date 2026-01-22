@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { getLinkByShortUrl } from '../lib/api'
 import NotFound from '../assets/vectors/404.svg'
 import LogoIcon from '../assets/vectors/Logo_Icon.svg'
@@ -21,7 +22,25 @@ function Redirect() {
         setStatus('redirecting')
         // Redirecionar para a URL original
         window.location.href = link.originalUrl
-      } catch {
+      } catch (error: unknown) {
+        // Verificar se é erro 404 ou outro tipo de erro
+        const errorMessage = error instanceof Error ? error.message : ''
+        const errorName = error instanceof Error ? error.name : ''
+        const isNotFound = errorMessage.includes('Link not found') || 
+                          errorMessage.includes('not found') || 
+                          errorMessage.includes('não encontrado')
+        
+        if (!isNotFound) {
+          // Mostrar toast para erros não-404 (500, rede, etc)
+          if (errorName === 'TypeError' || errorMessage.includes('Failed to fetch')) {
+            toast.error('Erro de conexão. Verifique sua internet e tente novamente.')
+          } else if (errorMessage.includes('Internal server error')) {
+            toast.error('Erro interno do servidor. Tente novamente mais tarde.')
+          } else {
+            toast.error('Erro ao acessar link. Tente novamente.')
+          }
+        }
+        
         setStatus('not-found')
       }
     }
