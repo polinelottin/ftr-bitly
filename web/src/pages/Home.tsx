@@ -74,7 +74,7 @@ function Home() {
   }
 
   const handleCopy = async (shortUrl: string) => {
-    const fullUrl = `brev.ly/${shortUrl}`
+    const fullUrl = `${api.baseURL}/${shortUrl}`
     try {
       await navigator.clipboard.writeText(fullUrl)
       // Você pode adicionar um toast aqui se quiser
@@ -88,10 +88,10 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="container mx-auto max-w-screen-xl px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Card Novo Link */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-6 lg:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <img src={Logo} alt="brev.ly" className="h-6" />
             </div>
@@ -143,7 +143,7 @@ function Home() {
           </div>
 
           {/* Card Meus Links */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-600">Meus links</h2>
               <Button
