@@ -261,10 +261,7 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
   server.get('/url-shortner/export', {
     schema: {
       response: {
-        200: z.object({
-          url: z.string().url(),
-          filename: z.string(),
-        }),
+        200: z.string(),
         500: z.object({
           message: z.string(),
         }),
@@ -275,8 +272,10 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
       const result = await exportLinks()
 
       if (isRight(result)) {
-        const data = unwrapEither(result)
-        return reply.status(200).send(data)
+        const { csvContent, filename } = unwrapEither(result)
+        reply.type('text/csv')
+        reply.header('Content-Disposition', `attachment; filename="${filename}"`)
+        return reply.status(200).send(csvContent)
       }
 
       return reply.status(500).send({ message: 'Internal server error.' })

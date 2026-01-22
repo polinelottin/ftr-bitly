@@ -10,7 +10,7 @@ function generateUniqueFilename(): string {
   return `links-export-${timestamp}-${random}.csv`
 }
 
-export async function exportLinks(): Promise<Either<never, { url: string; filename: string }>> {
+export async function exportLinks(): Promise<Either<never, { csvContent: string; filename: string }>> {
   const allLinks = await db
     .select()
     .from(links)
@@ -29,11 +29,8 @@ export async function exportLinks(): Promise<Either<never, { url: string; filena
 
   const filename = generateUniqueFilename()
 
-  const baseUrl = process.env.CDN_BASE_URL || 'https://cdn.example.com/exports'
-  const cdnUrl = `${baseUrl}/${filename}`
-
   return makeRight({
-    url: cdnUrl,
+    csvContent,
     filename,
   })
 }

@@ -1394,9 +1394,13 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(exportResponse.statusCode).toBe(200)
-      const exportBody = JSON.parse(exportResponse.body)
-      expect(exportBody.url).toBeTruthy()
-      expect(exportBody.filename).toBeTruthy()
+      expect(exportResponse.headers['content-type']).toContain('text/csv')
+      expect(exportResponse.headers['content-disposition']).toContain('attachment')
+      expect(exportResponse.headers['content-disposition']).toContain('.csv')
+      
+      const csvContent = exportResponse.body
+      expect(csvContent).toContain('originalUrl,shortUrl,accessCount,createdAt')
+      expect(csvContent).toContain('https://example.com/for-export')
     })
 
     test('should create links, list first page, increment accesses, and list again', async () => {
