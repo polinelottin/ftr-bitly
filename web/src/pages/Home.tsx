@@ -89,13 +89,14 @@ function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto max-w-screen-xl px-6 lg:px-8 py-8">
+        {/* Header com Logo */}
+        <header className="mb-8">
+          <img src={Logo} alt="brev.ly" className="h-6" />
+        </header>
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Card Novo Link */}
           <div className="bg-white rounded-lg shadow-md p-6 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-6">
-              <img src={Logo} alt="brev.ly" className="h-6" />
-            </div>
-            
             <h2 className="text-2xl font-bold text-gray-600 mb-6">Novo link</h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">

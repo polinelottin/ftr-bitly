@@ -21,7 +21,7 @@ function Redirect() {
         setStatus('redirecting')
         // Redirecionar para a URL original
         window.location.href = link.originalUrl
-      } catch (error) {
+      } catch {
         setStatus('not-found')
       }
     }
