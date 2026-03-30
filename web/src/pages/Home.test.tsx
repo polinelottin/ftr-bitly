@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@/test/utils/test-utils'
 import userEvent from '@testing-library/user-event'
 import Home from './Home'
 import * as api from '@/lib/api'
+import type { ListLinksResponse } from '@/types/link'
 import * as sonner from 'sonner'
 
 // Mock do sonner (toast)
@@ -86,7 +87,7 @@ describe('Home', () => {
 
   it('should display loading state when fetching links', () => {
     vi.mocked(api.listLinks).mockImplementation(
-      () => new Promise(() => { }), // Never resolves
+      () => new Promise<ListLinksResponse>(() => { }), // Never resolves
     )
 
     render(<Home />)
