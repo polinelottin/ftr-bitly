@@ -1193,24 +1193,24 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body).toHaveProperty('url')
-      expect(body).toHaveProperty('filename')
-      expect(typeof body.url).toBe('string')
-      expect(typeof body.filename).toBe('string')
-      expect(body.url).toMatch(/^https?:\/\//)
+      expect(response.headers['content-type']).toContain('text/csv')
+      expect(response.headers['content-disposition']).toContain('attachment')
+      expect(response.headers['content-disposition']).toContain('.csv')
+      
+      const csvContent = response.body as string
+      expect(csvContent).toContain('originalUrl,shortUrl,accessCount,createdAt')
     })
 
-    test('should return valid URL format for export', async () => {
+    test('should return valid CSV format for export', async () => {
       const response = await server.inject({
         method: 'GET',
         url: '/url-shortner/export',
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body.url).toBeTruthy()
-      expect(body.filename).toBeTruthy()
+      expect(response.headers['content-type']).toContain('text/csv')
+      expect(response.headers['content-disposition']).toBeTruthy()
+      expect(response.headers['content-disposition']).toContain('.csv')
     })
 
     test('should validate export response structure', async () => {
@@ -1220,12 +1220,10 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(typeof body.url).toBe('string')
-      expect(typeof body.filename).toBe('string')
-      expect(body.url.length).toBeGreaterThan(0)
-      expect(body.filename.length).toBeGreaterThan(0)
-      expect(body.url).toMatch(/^https?:\/\//)
+      expect(response.headers['content-type']).toContain('text/csv')
+      expect(response.headers['content-disposition']).toBeTruthy()
+      expect(response.headers['content-disposition'].length).toBeGreaterThan(0)
+      expect(response.headers['content-disposition']).toContain('attachment')
     })
 
     test('should generate filename with .csv extension', async () => {
@@ -1235,8 +1233,8 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body.filename).toMatch(/\.csv$/)
+      const contentDisposition = response.headers['content-disposition']
+      expect(contentDisposition).toMatch(/\.csv/)
     })
 
     test('should generate unique filename for each export', async () => {
@@ -1253,23 +1251,26 @@ describe('URL Shortener Routes', () => {
       expect(response1.statusCode).toBe(200)
       expect(response2.statusCode).toBe(200)
 
-      const body1 = JSON.parse(response1.body)
-      const body2 = JSON.parse(response2.body)
+      const filename1 = response1.headers['content-disposition']
+      const filename2 = response2.headers['content-disposition']
 
-      expect(body1.filename).toBeTruthy()
-      expect(body2.filename).toBeTruthy()
+      expect(filename1).toBeTruthy()
+      expect(filename2).toBeTruthy()
+      // Os filenames devem ser diferentes devido ao timestamp e random
+      expect(filename1).not.toBe(filename2)
     })
 
-    test('should return valid CDN URL format', async () => {
+    test('should return valid CSV content', async () => {
       const response = await server.inject({
         method: 'GET',
         url: '/url-shortner/export',
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body.url).toMatch(/^https?:\/\//)
-      expect(body.url.length).toBeGreaterThan(0)
+      const csvContent = response.body as string
+      expect(csvContent).toBeTruthy()
+      expect(csvContent.length).toBeGreaterThan(0)
+      expect(csvContent).toContain('originalUrl,shortUrl,accessCount,createdAt')
     })
 
     test('should validate filename is not empty', async () => {
@@ -1279,9 +1280,9 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body.filename).toBeTruthy()
-      expect(body.filename.length).toBeGreaterThan(0)
+      const contentDisposition = response.headers['content-disposition']
+      expect(contentDisposition).toBeTruthy()
+      expect(contentDisposition.length).toBeGreaterThan(0)
     })
 
     test('should validate url and filename are both present', async () => {
@@ -1291,11 +1292,10 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body).toHaveProperty('url')
-      expect(body).toHaveProperty('filename')
-      expect(body.url).toBeTruthy()
-      expect(body.filename).toBeTruthy()
+      expect(response.headers['content-type']).toContain('text/csv')
+      expect(response.headers['content-disposition']).toBeTruthy()
+      expect(response.headers['content-disposition']).toContain('attachment')
+      expect(response.headers['content-disposition']).toContain('.csv')
     })
   })
 
@@ -1528,9 +1528,16 @@ describe('URL Shortener Routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      const body = JSON.parse(response.body)
-      expect(body.url).toBeTruthy()
-      expect(body.filename).toBeTruthy()
+      expect(response.headers['content-type']).toContain('text/csv')
+      expect(response.headers['content-disposition']).toContain('attachment')
+      expect(response.headers['content-disposition']).toContain('.csv')
+      
+      // Quando não há links, o CSV deve conter apenas o header
+      const csvContent = response.body as string
+      expect(csvContent).toContain('originalUrl,shortUrl,accessCount,createdAt')
+      // Deve ter apenas o header, sem linhas de dados
+      const lines = csvContent.trim().split('\n')
+      expect(lines.length).toBe(1) // Apenas o header
     })
   })
 })
