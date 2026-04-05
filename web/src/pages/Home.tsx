@@ -5,7 +5,11 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { createLink, listLinks, exportLinks, deleteLink } from '../lib/api'
 import Logo from '../assets/vectors/Logo.svg'
-import { shortLinkUrl } from '../config/api'
+import {
+  getShortLinkOriginPrefix,
+  publicShortLinkDisplay,
+  shortLinkUrl,
+} from '../config/api'
 
 function Home() {
   const [originalUrl, setOriginalUrl] = useState('')
@@ -152,9 +156,9 @@ function Home() {
                 >
                   LINK ENCURTADO
                 </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 text-gray-400 text-md pointer-events-none">
-                    brev.ly/
+                <div className="flex min-w-0 items-stretch rounded-lg border-2 border-gray-200 text-md text-gray-600 transition-colors focus-within:border-blue-base focus-within:ring-2 focus-within:ring-blue-base focus-within:ring-offset-1">
+                  <span className="flex shrink-0 items-center border-r border-gray-200 bg-gray-50 px-3 text-gray-400 select-none">
+                    {getShortLinkOriginPrefix()}
                   </span>
                   <input
                     id="short-url"
@@ -162,7 +166,7 @@ function Home() {
                     value={shortUrl}
                     onChange={(e) => setShortUrl(e.target.value)}
                     placeholder=""
-                    className="w-full pl-20 pr-4 py-2 rounded-lg border-2 border-gray-200 text-gray-600 transition-colors text-md focus:outline-none focus:border-blue-base focus:ring-blue-base focus:ring-2 focus:ring-offset-1"
+                    className="min-w-0 flex-1 rounded-r-lg border-0 bg-white py-2 pr-4 pl-3 text-gray-600 focus:outline-none focus:ring-0"
                   />
                 </div>
               </div>
@@ -235,7 +239,7 @@ function Home() {
                         rel="noopener noreferrer"
                         className="text-sm font-semibold text-blue-base truncate hover:underline block"
                       >
-                        brev.ly/{link.shortUrl}
+                        {publicShortLinkDisplay(link.shortUrl)}
                       </a>
                       <a
                         href={link.originalUrl}

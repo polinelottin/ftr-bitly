@@ -30,7 +30,28 @@ export function getPublicFrontendBaseUrl(): string {
 }
 
 export function shortLinkUrl(shortUrl: string): string {
-  return `${getPublicFrontendBaseUrl()}/${shortUrl}`
+  const base = getPublicFrontendBaseUrl()
+  const path = shortUrl.replace(/^\/+/, '')
+  return `${base}/${path}`
+}
+
+/** Prefixo exibido antes do slug (host + path do front, com barra final). */
+export function getShortLinkOriginPrefix(): string {
+  const base = getPublicFrontendBaseUrl()
+  try {
+    const u = new URL(base)
+    const p = u.pathname.replace(/\/$/, '')
+    const pathPart = p && p !== '/' ? `${p.slice(1)}/` : ''
+    return `${u.host}/${pathPart}`
+  } catch {
+    const withoutProto = trimTrailingSlash(base).replace(/^https?:\/\//i, '')
+    return `${withoutProto}/`
+  }
+}
+
+/** Texto do link público sem esquema (adequado à listagem). */
+export function publicShortLinkDisplay(shortUrl: string): string {
+  return shortLinkUrl(shortUrl).replace(/^https?:\/\//i, '')
 }
 
 export const api = {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@/test/utils/test-utils'
+import { fireEvent, render, screen, waitFor } from '@/test/utils/test-utils'
 import userEvent from '@testing-library/user-event'
 import Home from './Home'
 import * as api from '@/lib/api'
@@ -55,6 +55,8 @@ const originalRemoveChild = document.body.removeChild.bind(document.body)
 describe('Home', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockClipboard.writeText.mockReset()
+    mockClipboard.writeText.mockResolvedValue(undefined)
     // Restaurar createElement original
     document.createElement = originalCreateElement
     document.body.appendChild = originalAppendChild
@@ -374,11 +376,8 @@ describe('Home', () => {
       limit: 100,
     })
 
-    // Resetar os mocks
-    mockClipboard.writeText.mockClear()
     vi.mocked(sonner.toast.success).mockClear()
 
-    const user = userEvent.setup()
     render(<Home />)
 
     await waitFor(() => {
@@ -388,14 +387,16 @@ describe('Home', () => {
     const copyButton = screen.getByRole('button', { name: /copiar link/i })
     expect(copyButton).toBeInTheDocument()
 
-    await user.click(copyButton)
+    fireEvent.click(copyButton)
 
-    // Verificar que o toast de sucesso foi chamado (indicando que o clipboard funcionou)
     await waitFor(() => {
-      expect(sonner.toast.success).toHaveBeenCalledWith(
-        'Link copiado para a área de transferência',
+      expect(mockClipboard.writeText).toHaveBeenCalledWith(
+        'https://brev.ly/test',
       )
-    }, { timeout: 3000 })
+    })
+    expect(sonner.toast.success).toHaveBeenCalledWith(
+      'Link copiado para a área de transferência',
+    )
   })
 
   it('should export links when export button is clicked', async () => {
