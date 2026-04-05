@@ -40,4 +40,39 @@ describe('uploadExportedCsvToR2', () => {
     expect(url).toBe('https://cdn.example.com/exports/links-export-test.csv')
     expect(sendMock).toHaveBeenCalledTimes(1)
   })
+
+  test('isR2CsvExportEnabled retorna true quando todas as variáveis R2 estão definidas', async () => {
+    const { isR2CsvExportEnabled } = await import('./upload-csv-r2')
+    expect(isR2CsvExportEnabled()).toBe(true)
+  })
+
+  test('isR2CsvExportEnabled retorna false sem variáveis Cloudflare', async () => {
+    process.env = {
+      ...baseEnv,
+      NODE_ENV: 'test',
+      PORT: '3333',
+      DATABASE_URL: 'postgresql://docker:docker@localhost:5432/bitly',
+    }
+    delete process.env.CLOUDFLARE_ACCOUNT_ID
+    delete process.env.CLOUDFLARE_ACCESS_KEY_ID
+    delete process.env.CLOUDFLARE_SECRET_ACCESS_KEY
+    delete process.env.CLOUDFLARE_BUCKET
+    delete process.env.CLOUDFLARE_PUBLIC_URL
+    vi.resetModules()
+
+    const { isR2CsvExportEnabled } = await import('./upload-csv-r2')
+    expect(isR2CsvExportEnabled()).toBe(false)
+  })
+
+  test('normaliza barras finais na URL pública do objeto', async () => {
+    process.env.CLOUDFLARE_PUBLIC_URL = 'https://cdn.example.com///'
+    vi.resetModules()
+
+    const { uploadExportedCsvToR2 } = await import('./upload-csv-r2')
+    const url = await uploadExportedCsvToR2({
+      csvContent: 'x',
+      filename: 'f.csv',
+    })
+    expect(url).toBe('https://cdn.example.com/exports/f.csv')
+  })
 })
