@@ -1,11 +1,9 @@
 services:
   pg:
-    image: bitnami/postgresql:latest
+    image: postgres:16-alpine
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=brevly
-    volumes:
-      - "./docker:/docker-entrypoint-initdb.d"
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: brevly

@@ -51,7 +51,7 @@ docker build -t ftr-brevly-server .
 Para executar com Docker Compose:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ## Configuração

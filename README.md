@@ -48,8 +48,8 @@ ftr-bitly/
 
 - Node.js (versão 18 ou superior)
 - pnpm ou npm ou yarn
-- PostgreSQL (ou Docker para executar via docker-compose)
-- Docker e Docker Compose (opcional)
+- PostgreSQL (ou Docker para subir o Postgres com `docker compose`)
+- Docker com plugin Compose v2 (opcional; comando: `docker compose`, não `docker-compose`)
 
 ## 🔧 Instalação
 
@@ -104,8 +104,10 @@ VITE_FRONTEND_URL=http://localhost:5173
 Na pasta `server/`, execute:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
+
+Se ainda tiver o binário antigo instalado, o equivalente é `docker-compose up -d` (com hífen).
 
 Isso iniciará um container PostgreSQL na porta 5432.
 

@@ -13,7 +13,7 @@ const optionalPublicUrl = z.preprocess(emptyToUndefined, z.string().url().option
 const envSchema = z
   .object({
     PORT: z.coerce.number().default(3333),
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('production'),
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     DATABASE_URL: z.string().url().startsWith('postgresql://'),
     CLOUDFLARE_ACCOUNT_ID: optionalNonEmptyString,
     CLOUDFLARE_ACCESS_KEY_ID: optionalNonEmptyString,
