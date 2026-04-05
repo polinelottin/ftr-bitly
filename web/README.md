@@ -56,11 +56,15 @@ yarn install
 
 ## Configuração
 
-Crie um arquivo `.env` na raiz do projeto `web` com a seguinte variável:
+Crie um arquivo `.env` na raiz do projeto `web` (veja também `.env.example`):
 
 ```env
-VITE_API_BASE_URL=http://localhost:3333
+VITE_BACKEND_URL=http://localhost:3333
+VITE_FRONTEND_URL=http://localhost:5173
 ```
+
+- `VITE_BACKEND_URL`: base da API (servidor Node).
+- `VITE_FRONTEND_URL`: URL pública do SPA usada para montar o link encurtado que o usuário compartilha. Se omitida em desenvolvimento, o app usa `window.location.origin`.
 
 ## Scripts
 

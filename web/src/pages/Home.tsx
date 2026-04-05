@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { createLink, listLinks, exportLinks, deleteLink } from '../lib/api'
 import Logo from '../assets/vectors/Logo.svg'
-import { api } from '../config/api'
+import { shortLinkUrl } from '../config/api'
 
 function Home() {
   const [originalUrl, setOriginalUrl] = useState('')
@@ -110,7 +110,7 @@ function Home() {
   }
 
   const handleCopy = async (shortUrl: string) => {
-    const fullUrl = `${api.baseURL}/${shortUrl}`
+    const fullUrl = shortLinkUrl(shortUrl)
     try {
       await navigator.clipboard.writeText(fullUrl)
       toast.success('Link copiado para a área de transferência')
@@ -230,7 +230,7 @@ function Home() {
                     {/* Links - Esquerda */}
                     <div className="flex-1 min-w-0">
                       <a
-                        href={`${api.baseURL}/${link.shortUrl}`}
+                        href={shortLinkUrl(link.shortUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm font-semibold text-blue-base truncate hover:underline block"

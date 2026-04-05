@@ -90,10 +90,11 @@ PORT=3333
 
 ### Frontend (`web/`)
 
-Crie um arquivo `.env` na pasta `web/` com a seguinte variável:
+Crie um arquivo `.env` na pasta `web/` (ou copie de `web/.env.example`):
 
 ```env
-VITE_API_BASE_URL=http://localhost:3333
+VITE_BACKEND_URL=http://localhost:3333
+VITE_FRONTEND_URL=http://localhost:5173
 ```
 
 ## 🐳 Executando com Docker
