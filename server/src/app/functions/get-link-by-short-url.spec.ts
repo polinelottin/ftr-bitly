@@ -25,7 +25,7 @@ describe('getLinkByShortUrl', () => {
     const { getLinkByShortUrl } = await import('./get-link-by-short-url')
     const result = await getLinkByShortUrl('missing')
     expect(isLeft(result)).toBe(true)
-    expect(unwrapEither(result).message).toBe('Link not found')
+    expect(unwrapEither(result)).toMatchObject({ message: 'Link not found' })
   })
 
   test('aceita shortUrl codificado (decodeURIComponent)', async () => {
@@ -41,7 +41,7 @@ describe('getLinkByShortUrl', () => {
     const { getLinkByShortUrl } = await import('./get-link-by-short-url')
     const result = await getLinkByShortUrl('a%20b')
     expect(isRight(result)).toBe(true)
-    expect(unwrapEither(result).shortUrl).toBe('a b')
+    expect(unwrapEither(result)).toMatchObject({ shortUrl: 'a b' })
   })
 
   test('retorna o link quando encontrado', async () => {

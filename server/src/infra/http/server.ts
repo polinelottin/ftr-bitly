@@ -107,8 +107,6 @@ server.get('/*', async (request, reply) => {
   }
 })
 
-console.log(env.DATABASE_URL)
-
-server.listen({ port: 3333, host: '0.0.0.0' }).then(() => {
-  console.log('HTTP Server running!')
+server.listen({ port: env.PORT, host: '0.0.0.0' }).then(() => {
+  console.log(`HTTP server listening on port ${env.PORT}`)
 })
