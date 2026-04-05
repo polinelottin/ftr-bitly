@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import Home from './pages/Home'
-import Showcase from './pages/Showcase'
 import Redirect from './pages/Redirect'
 import NotFound from './pages/NotFound'
 
@@ -10,7 +9,6 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/ui-showcase" element={<Showcase />} />
         <Route path="/:shortUrl" element={<Redirect />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
