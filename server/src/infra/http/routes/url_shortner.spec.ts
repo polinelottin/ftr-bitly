@@ -1222,7 +1222,7 @@ describe('URL Shortener Routes', () => {
       expect(response.statusCode).toBe(200)
       expect(response.headers['content-type']).toContain('text/csv')
       expect(response.headers['content-disposition']).toBeTruthy()
-      expect(response.headers['content-disposition'].length).toBeGreaterThan(0)
+      expect(response.headers['content-disposition']!.length).toBeGreaterThan(0)
       expect(response.headers['content-disposition']).toContain('attachment')
     })
 
@@ -1282,7 +1282,7 @@ describe('URL Shortener Routes', () => {
       expect(response.statusCode).toBe(200)
       const contentDisposition = response.headers['content-disposition']
       expect(contentDisposition).toBeTruthy()
-      expect(contentDisposition.length).toBeGreaterThan(0)
+      expect(contentDisposition!.length).toBeGreaterThan(0)
     })
 
     test('should validate url and filename are both present', async () => {

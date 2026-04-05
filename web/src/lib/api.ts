@@ -77,7 +77,7 @@ export async function incrementAccess(shortUrl: string): Promise<void> {
   }
 }
 
-export async function exportLinks(): Promise<Blob> {
+export async function exportLinks(): Promise<{ blob: Blob; filename: string }> {
   const response = await fetch(`${api.baseURL}${api.endpoints.export}`)
 
   if (!response.ok) {
@@ -85,5 +85,21 @@ export async function exportLinks(): Promise<Blob> {
     throw new Error(error.message || 'Erro ao exportar links')
   }
 
-  return response.blob()
+  const contentType = response.headers.get('content-type') || ''
+
+  if (contentType.includes('application/json')) {
+    const data = (await response.json()) as { url: string; filename: string }
+    const fileRes = await fetch(data.url)
+    if (!fileRes.ok) {
+      throw new Error('Erro ao baixar o CSV da CDN')
+    }
+    const blob = await fileRes.blob()
+    return { blob, filename: data.filename }
+  }
+
+  const blob = await response.blob()
+  const disposition = response.headers.get('content-disposition') || ''
+  const match = /filename="([^"]+)"/.exec(disposition)
+  const filename = match?.[1] ?? 'links.csv'
+  return { blob, filename }
 }

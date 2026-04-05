@@ -67,11 +67,11 @@ function Home() {
 
   const handleExport = async () => {
     try {
-      const blob = await exportLinks()
+      const { blob, filename } = await exportLinks()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'links.csv'
+      a.download = filename
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)

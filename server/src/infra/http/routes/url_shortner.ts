@@ -6,6 +6,7 @@ import { getLinkByShortUrl } from '@/app/functions/get-link-by-short-url'
 import { incrementAccessCount } from '@/app/functions/increment-access-count'
 import { listLinks } from '@/app/functions/list-links'
 import { exportLinks } from '@/app/functions/export-links'
+import { isR2CsvExportEnabled, uploadExportedCsvToR2 } from '@/infra/storage/upload-csv-r2'
 import { isRight, unwrapEither } from '@/infra/shared/either'
 import { LinkNotFound } from '@/app/functions/errors/link-not-found'
 import { DuplicateShortUrlError } from '@/app/functions/errors/duplicate-short-url'
@@ -258,29 +259,54 @@ export const urlShortnerRoute: FastifyPluginAsyncZod = async server => {
   })
 
   // Exportar os links criados em um CSV
-  server.get('/url-shortner/export', {
-    schema: {
-      response: {
-        200: z.string(),
-        500: z.object({
-          message: z.string(),
-        }),
+  server.get(
+    '/url-shortner/export',
+    {
+      schema: {
+        description:
+          'Gera um CSV com todos os links. Com Cloudflare R2 configurado, o arquivo é enviado ao bucket e a resposta é JSON com `url` (pública na CDN) e `filename`. Sem R2 (ex.: desenvolvimento), o corpo é o próprio CSV com Content-Disposition.',
+        response: {
+          200: z.union([
+            z.object({
+              url: z.string(),
+              filename: z.string(),
+            }),
+            z.string(),
+          ]),
+          500: z.object({
+            message: z.string(),
+          }),
+        },
       },
     },
-  }, async (request, reply) => {
-    try {
-      const result = await exportLinks()
+    async (request, reply) => {
+      try {
+        const result = await exportLinks()
 
-      if (isRight(result)) {
-        const { csvContent, filename } = unwrapEither(result)
-        reply.type('text/csv')
-        reply.header('Content-Disposition', `attachment; filename="${filename}"`)
-        return reply.status(200).send(csvContent)
+        if (isRight(result)) {
+          const { csvContent, filename } = unwrapEither(result)
+
+          if (isR2CsvExportEnabled()) {
+            try {
+              const url = await uploadExportedCsvToR2({ csvContent, filename })
+              return reply.status(200).send({ url, filename })
+            } catch (err) {
+              console.error('CSV R2 upload failed:', err)
+              return reply
+                .status(500)
+                .send({ message: 'Falha ao enviar o CSV para o armazenamento (R2).' })
+            }
+          }
+
+          reply.type('text/csv')
+          reply.header('Content-Disposition', `attachment; filename="${filename}"`)
+          return reply.status(200).send(csvContent)
+        }
+
+        return reply.status(500).send({ message: 'Internal server error.' })
+      } catch (error) {
+        return reply.status(500).send({ message: 'Internal server error.' })
       }
-
-      return reply.status(500).send({ message: 'Internal server error.' })
-    } catch (error) {
-      return reply.status(500).send({ message: 'Internal server error.' })
-    }
-  })
+    },
+  )
 }

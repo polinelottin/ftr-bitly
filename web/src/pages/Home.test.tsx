@@ -417,7 +417,7 @@ describe('Home', () => {
     })
 
     const mockBlob = new Blob(['test'], { type: 'text/csv' })
-    vi.mocked(api.exportLinks).mockResolvedValue(mockBlob)
+    vi.mocked(api.exportLinks).mockResolvedValue({ blob: mockBlob, filename: 'links.csv' })
 
     // Resetar o mock do toast
     vi.mocked(sonner.toast.success).mockClear()

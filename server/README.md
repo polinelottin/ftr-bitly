@@ -59,7 +59,7 @@ docker-compose up
 Certifique-se de configurar as seguintes variáveis de ambiente:
 
 - `DATABASE_URL` - URL de conexão com o PostgreSQL
-- `CDN_BASE_URL` - URL base da CDN para armazenar os CSVs exportados (opcional)
+- **Cloudflare R2 (produção):** `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ACCESS_KEY_ID`, `CLOUDFLARE_SECRET_ACCESS_KEY`, `CLOUDFLARE_BUCKET`, `CLOUDFLARE_PUBLIC_URL` — todas obrigatórias quando `NODE_ENV=production`. O servidor usa a API S3 do R2; `CLOUDFLARE_PUBLIC_URL` é a URL pública do bucket (CDN / domínio customizado). Configure CORS no bucket (ou no domínio público) para permitir `GET` a partir da origem do front-end, já que o navegador baixa o CSV pela URL pública retornada pela API.
 
 ## API
 
@@ -72,7 +72,7 @@ A API está documentada através do Swagger UI disponível em `/docs` quando o s
 - `GET /url-shortner/:shortUrl` - Obtém informações de um link
 - `GET /url-shortner` - Lista todos os links (com paginação via query params `page` e `limit`)
 - `PATCH /url-shortner/:shortUrl/access` - Incrementa o contador de acessos
-- `GET /url-shortner/export` - Exporta todos os links em CSV
+- `GET /url-shortner/export` - Exporta todos os links em CSV. **Com R2 configurado:** resposta `200` JSON `{ "url": "<URL pública do arquivo na CDN>", "filename": "..." }`. **Sem R2 (desenvolvimento):** resposta `200` com corpo `text/csv` e header `Content-Disposition: attachment`.
 
 ## CORS
 
