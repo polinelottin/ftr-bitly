@@ -1,4 +1,5 @@
 import { api } from '@/config/api'
+import { parseFilenameFromContentDisposition } from '@/lib/content-disposition-filename'
 import type { CreateLinkRequest, CreateLinkResponse, Link, ListLinksResponse } from '@/types/link'
 
 export async function createLink(data: CreateLinkRequest): Promise<CreateLinkResponse> {
@@ -99,7 +100,7 @@ export async function exportLinks(): Promise<{ blob: Blob; filename: string }> {
 
   const blob = await response.blob()
   const disposition = response.headers.get('content-disposition') || ''
-  const match = /filename="([^"]+)"/.exec(disposition)
-  const filename = match?.[1] ?? 'links.csv'
+  const filename =
+    parseFilenameFromContentDisposition(disposition) ?? 'links.csv'
   return { blob, filename }
 }

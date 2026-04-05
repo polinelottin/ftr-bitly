@@ -228,6 +228,41 @@ describe('Home', () => {
     })
   })
 
+  it('should not submit when custom short URL has invalid characters', async () => {
+    vi.mocked(api.listLinks).mockResolvedValue({
+      links: [],
+      total: 0,
+      page: 1,
+      limit: 100,
+    })
+
+    const user = userEvent.setup()
+    render(<Home />)
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/link original/i)).toBeInTheDocument()
+    })
+
+    const urlInput = screen.getByLabelText(/link original/i)
+    const shortUrlInput = screen.getByLabelText(/link encurtado/i)
+    const submitButton = screen.getByRole('button', { name: /salvar link/i })
+
+    await user.type(urlInput, 'https://example.com')
+    await user.type(shortUrlInput, 'bad@url')
+
+    expect(
+      screen.getByText(
+        /use apenas letras, números, hífens \(-\) e underscores \(_\)\./i,
+      ),
+    ).toBeInTheDocument()
+    expect(submitButton).toBeDisabled()
+
+    const form = urlInput.closest('form')
+    expect(form).toBeTruthy()
+    fireEvent.submit(form!)
+    expect(api.createLink).not.toHaveBeenCalled()
+  })
+
   it('should create link with custom short URL', async () => {
     vi.mocked(api.listLinks).mockResolvedValue({
       links: [],

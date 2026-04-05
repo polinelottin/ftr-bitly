@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { createLink, listLinks, exportLinks, deleteLink } from '../lib/api'
+import { getCustomShortUrlValidationMessage } from '../lib/short-url-validation'
 import Logo from '../assets/vectors/Logo.svg'
 import {
   getShortLinkOriginPrefix,
@@ -57,6 +58,14 @@ function Home() {
     e.preventDefault()
     if (!originalUrl.trim()) return
 
+    const trimmedShortUrl = shortUrl.trim()
+    const shortUrlValidationError =
+      getCustomShortUrlValidationMessage(trimmedShortUrl)
+    if (shortUrlValidationError) {
+      toast.error(shortUrlValidationError)
+      return
+    }
+
     // Garantir que a URL tenha protocolo
     let url = originalUrl.trim()
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -65,7 +74,7 @@ function Home() {
 
     createLinkMutation.mutate({
       url,
-      shortUrl: shortUrl.trim() || undefined,
+      shortUrl: trimmedShortUrl || undefined,
     })
   }
 
@@ -125,6 +134,11 @@ function Home() {
 
   const links = linksData?.links || []
   const hasLinks = links.length > 0
+  const shortUrlFieldError = getCustomShortUrlValidationMessage(shortUrl.trim())
+  const submitDisabled =
+    createLinkMutation.isPending ||
+    !originalUrl.trim() ||
+    shortUrlFieldError !== null
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -166,16 +180,29 @@ function Home() {
                     value={shortUrl}
                     onChange={(e) => setShortUrl(e.target.value)}
                     placeholder=""
+                    aria-invalid={shortUrlFieldError ? true : undefined}
+                    aria-describedby={
+                      shortUrlFieldError ? 'short-url-error' : undefined
+                    }
                     className="min-w-0 flex-1 rounded-r-lg border-0 bg-white py-2 pr-4 pl-3 text-gray-600 focus:outline-none focus:ring-0"
                   />
                 </div>
+                {shortUrlFieldError ? (
+                  <p
+                    id="short-url-error"
+                    role="alert"
+                    className="text-sm text-red-600"
+                  >
+                    {shortUrlFieldError}
+                  </p>
+                ) : null}
               </div>
               
               <div className="pt-2">
                 <Button 
                   variant="primary" 
                   type="submit"
-                  disabled={createLinkMutation.isPending || !originalUrl.trim()}
+                  disabled={submitDisabled}
                 >
                   Salvar link
                 </Button>
