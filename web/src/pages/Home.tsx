@@ -268,14 +268,9 @@ function Home() {
                       >
                         {publicShortLinkDisplay(link.shortUrl)}
                       </a>
-                      <a
-                        href={link.originalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-gray-400 mt-1 truncate hover:underline block"
-                      >
+                      <div className="text-xs text-gray-400 mt-1 truncate block">
                         {link.originalUrl}
-                      </a>
+                      </div>
                     </div>
                     
                     {/* Acessos - Meio */}
