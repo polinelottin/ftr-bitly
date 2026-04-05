@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    setupFiles: ['./src/test/setup-env.ts'],
     // Configura os testes para rodar sequencialmente (um por vez)
     // Isso evita conflitos de concorrência no banco de dados durante os testes
     // e garante que a limpeza de dados funcione corretamente

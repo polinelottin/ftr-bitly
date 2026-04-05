@@ -97,6 +97,17 @@ VITE_BACKEND_URL=http://localhost:3333
 VITE_FRONTEND_URL=http://localhost:5173
 ```
 
+### Testes do backend (`server/`)
+
+Os scripts `pnpm test` e `pnpm test:watch` carregam variáveis de **`server/.env.test`** (via `dotenv-cli`). Esse arquivo **não é versionado**; use o modelo commitado:
+
+```bash
+cd server
+cp .env.test.example .env.test
+```
+
+O padrão em `.env.test.example` corresponde ao PostgreSQL do `docker compose` deste repositório (`docker` / `docker`, banco `brevly`). Ajuste `DATABASE_URL` no seu `.env.test` se usar outro host, porta ou nome de banco.
+
 ## 🐳 Executando com Docker
 
 ### Banco de dados
@@ -179,12 +190,19 @@ A documentação completa da API está disponível no Swagger UI em `/docs` quan
 
 ## 🧪 Testes
 
-Os testes estão localizados na pasta `server/src/test/` e podem ser executados com:
+O backend usa **Vitest**. Parte dos testes (rotas HTTP em `server/src/infra/http/routes/`) fala com o **PostgreSQL** de verdade.
+
+1. Suba o banco: na pasta `server/`, `docker compose up -d`.
+2. Aplique as migrations: `cd server && pnpm db:migrate` (com seu `.env` de desenvolvimento ou com a mesma `DATABASE_URL` que você colocou em `.env.test`).
+3. Crie `server/.env.test` a partir do exemplo: `cp server/.env.test.example server/.env.test`.
+4. Execute:
 
 ```bash
 cd server
 pnpm test
 ```
+
+Se `DATABASE_URL` não estiver definida ao rodar o Vitest diretamente (sem o script do `package.json`), um fallback em `server/src/test/setup-env.ts` ainda permite carregar o app, mas o fluxo recomendado é manter `.env.test` e usar `pnpm test`.
 
 ## 📝 Licença
 
