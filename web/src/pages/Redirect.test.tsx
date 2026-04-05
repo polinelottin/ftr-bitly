@@ -20,6 +20,7 @@ vi.mock('sonner', () => ({
 // Mock da API
 vi.mock('@/lib/api', () => ({
   getLinkByShortUrl: vi.fn(),
+  incrementAccess: vi.fn(),
 }))
 
 // Mock do window.location.href
@@ -76,17 +77,44 @@ describe('Redirect', () => {
     }
 
     vi.mocked(api.getLinkByShortUrl).mockResolvedValue(mockLink)
+    vi.mocked(api.incrementAccess).mockResolvedValue(undefined)
 
     render(<div />, { wrapper: createWrapper(['/test-url']) })
 
     await waitFor(() => {
-      expect(api.getLinkByShortUrl).toHaveBeenCalled()
+      expect(api.getLinkByShortUrl).toHaveBeenCalledWith('test-url')
     }, { timeout: 3000 })
 
-    // Verificar que a URL foi definida (pode não ser exatamente igual devido ao mock)
+    await waitFor(() => {
+      expect(api.incrementAccess).toHaveBeenCalledWith('test-url')
+    }, { timeout: 2000 })
+
     await waitFor(() => {
       expect(window.location.href).toBeTruthy()
     }, { timeout: 2000 })
+  })
+
+  it('should still redirect when incrementAccess fails', async () => {
+    const mockLink = {
+      id: '1',
+      originalUrl: 'https://example.org',
+      shortUrl: 'abc',
+      accessCount: 0,
+      createdAt: new Date().toISOString(),
+    }
+
+    vi.mocked(api.getLinkByShortUrl).mockResolvedValue(mockLink)
+    vi.mocked(api.incrementAccess).mockRejectedValue(new Error('network'))
+
+    render(<div />, { wrapper: createWrapper(['/abc']) })
+
+    await waitFor(() => {
+      expect(api.incrementAccess).toHaveBeenCalledWith('abc')
+    })
+
+    await waitFor(() => {
+      expect(window.location.href).toBe('https://example.org')
+    })
   })
 
   it('should show not found message when link does not exist', async () => {

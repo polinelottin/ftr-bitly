@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { getLinkByShortUrl } from '../lib/api'
+import { getLinkByShortUrl, incrementAccess } from '../lib/api'
 import NotFound from '../assets/vectors/404.svg'
 import LogoIcon from '../assets/vectors/Logo_Icon.svg'
 
@@ -19,8 +19,10 @@ function Redirect() {
     async function redirect() {
       try {
         const link = await getLinkByShortUrl(shortUrl as string)
+        void incrementAccess(shortUrl as string).catch(() => {
+          // Melhor esforço: falha de rede não deve impedir o redirect
+        })
         setStatus('redirecting')
-        // Redirecionar para a URL original
         window.location.href = link.originalUrl
       } catch (error: unknown) {
         // Verificar se é erro 404 ou outro tipo de erro
